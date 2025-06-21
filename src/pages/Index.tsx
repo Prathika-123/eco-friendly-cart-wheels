@@ -12,6 +12,7 @@ interface Product {
   sustainabilityScore: number;
   carbonFootprint: number;
   image: string;
+  images?: string[]; // Add support for multiple images
   category: string;
   certifications: string[];
   description: string;
@@ -22,7 +23,7 @@ interface CartItem extends Product {
 }
 
 const mockProducts: Product[] = [
-  // Vegetables (Updated with better images)
+  // Vegetables (Updated with multiple images)
   {
     id: 1,
     name: "Organic Spinach Bundle",
@@ -30,6 +31,11 @@ const mockProducts: Product[] = [
     sustainabilityScore: 9.5,
     carbonFootprint: 0.3,
     image: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400&h=300&fit=crop&crop=center&auto=format&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400&h=300&fit=crop&crop=center&auto=format&q=80",
+      "https://images.unsplash.com/photo-1515543237350-b3eea1ec8082?w=400&h=300&fit=crop&crop=center&auto=format&q=80",
+      "https://images.unsplash.com/photo-1574316071802-0d684efa7bf5?w=400&h=300&fit=crop&crop=center&auto=format&q=80"
+    ],
     category: "Vegetables",
     certifications: ["Organic", "Local Grown"],
     description: "Fresh organic spinach, locally grown"
@@ -41,6 +47,11 @@ const mockProducts: Product[] = [
     sustainabilityScore: 9.3,
     carbonFootprint: 0.4,
     image: "https://images.unsplash.com/photo-1546470427-e26264be0b0d?w=400&h=300&fit=crop&crop=center&auto=format&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1546470427-e26264be0b0d?w=400&h=300&fit=crop&crop=center&auto=format&q=80",
+      "https://images.unsplash.com/photo-1592841200221-a6898f307baa?w=400&h=300&fit=crop&crop=center&auto=format&q=80",
+      "https://images.unsplash.com/photo-1574316071802-0d684efa7bf5?w=400&h=300&fit=crop&crop=center&auto=format&q=80"
+    ],
     category: "Vegetables",
     certifications: ["Organic", "Heirloom"],
     description: "Colorful heirloom tomatoes, pesticide-free"
@@ -52,6 +63,11 @@ const mockProducts: Product[] = [
     sustainabilityScore: 9.4,
     carbonFootprint: 0.2,
     image: "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=400&h=300&fit=crop&crop=center&auto=format&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=400&h=300&fit=crop&crop=center&auto=format&q=80",
+      "https://images.unsplash.com/photo-1522184216316-3c25379f9760?w=400&h=300&fit=crop&crop=center&auto=format&q=80",
+      "https://images.unsplash.com/photo-1590779033100-9f60a05a013d?w=400&h=300&fit=crop&crop=center&auto=format&q=80"
+    ],
     category: "Vegetables",
     certifications: ["Organic", "Non-GMO"],
     description: "Colorful organic carrots, rich in nutrients"
@@ -63,10 +79,16 @@ const mockProducts: Product[] = [
     sustainabilityScore: 9.6,
     carbonFootprint: 0.2,
     image: "https://images.unsplash.com/photo-1515543237350-b3eea1ec8082?w=400&h=300&fit=crop&crop=center&auto=format&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1515543237350-b3eea1ec8082?w=400&h=300&fit=crop&crop=center&auto=format&q=80",
+      "https://images.unsplash.com/photo-1622197084101-9b2a8d5a2e8b?w=400&h=300&fit=crop&crop=center&auto=format&q=80"
+    ],
     category: "Vegetables",
     certifications: ["Organic", "Superfood"],
     description: "Nutrient-dense organic kale, perfect for smoothies"
   },
+
+  // Other vegetables with single images for now
   {
     id: 5,
     name: "Sweet Bell Peppers",
@@ -90,7 +112,7 @@ const mockProducts: Product[] = [
     description: "Fresh organic broccoli crowns"
   },
 
-  // Fruits (Updated with better images)
+  // Fruits (Updated with multiple images)
   {
     id: 7,
     name: "Organic Apple Variety Pack",
@@ -98,6 +120,11 @@ const mockProducts: Product[] = [
     sustainabilityScore: 9.1,
     carbonFootprint: 0.5,
     image: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&crop=center&auto=format&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop&crop=center&auto=format&q=80",
+      "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=400&h=300&fit=crop&crop=center&auto=format&q=80",
+      "https://images.unsplash.com/photo-1569870499705-504209102861?w=400&h=300&fit=crop&crop=center&auto=format&q=80"
+    ],
     category: "Fruits",
     certifications: ["Organic", "Local"],
     description: "Mixed variety of organic apples"
@@ -109,10 +136,17 @@ const mockProducts: Product[] = [
     sustainabilityScore: 8.9,
     carbonFootprint: 0.6,
     image: "https://images.unsplash.com/photo-1498557850523-fd3d118b962e?w=400&h=300&fit=crop&crop=center&auto=format&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1498557850523-fd3d118b962e?w=400&h=300&fit=crop&crop=center&auto=format&q=80",
+      "https://images.unsplash.com/photo-1518635017498-87f514b751ba?w=400&h=300&fit=crop&crop=center&auto=format&q=80",
+      "https://images.unsplash.com/photo-1559181567-c3190ca9959b?w=400&h=300&fit=crop&crop=center&auto=format&q=80"
+    ],
     category: "Fruits",
     certifications: ["Organic", "Antioxidant Rich"],
     description: "Mixed organic berries, high in antioxidants"
   },
+
+  // Rest of the products remain the same for brevity
   {
     id: 9,
     name: "Sustainable Bananas",
@@ -158,7 +192,7 @@ const mockProducts: Product[] = [
     description: "Sweet organic strawberries, pesticide-free"
   },
 
-  // Clothing (Updated with better images)
+  // Clothing (Updated with multiple images)
   {
     id: 13,
     name: "Organic Cotton T-Shirt",
@@ -166,10 +200,17 @@ const mockProducts: Product[] = [
     sustainabilityScore: 9.2,
     carbonFootprint: 2.1,
     image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=300&fit=crop&crop=center&auto=format&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=300&fit=crop&crop=center&auto=format&q=80",
+      "https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=400&h=300&fit=crop&crop=center&auto=format&q=80",
+      "https://images.unsplash.com/photo-1583743814966-8936f37f4bb5?w=400&h=300&fit=crop&crop=center&auto=format&q=80"
+    ],
     category: "Clothing",
     certifications: ["Organic", "Fair Trade"],
     description: "100% organic cotton, ethically sourced"
   },
+
+  // Rest of the products
   {
     id: 14,
     name: "Organic Hemp Jeans",
@@ -215,7 +256,7 @@ const mockProducts: Product[] = [
     description: "High-performance yoga pants from sustainable materials"
   },
 
-  // Electronics (Updated with better images)
+  // Electronics
   {
     id: 18,
     name: "Solar Power Bank",
@@ -261,7 +302,7 @@ const mockProducts: Product[] = [
     description: "Hand-crank LED flashlight, no batteries needed"
   },
 
-  // Home & Garden (Updated with better images)
+  // Home & Garden
   {
     id: 22,
     name: "Bamboo Water Bottle",
@@ -307,7 +348,7 @@ const mockProducts: Product[] = [
     description: "Eco-friendly solar-powered garden lighting"
   },
 
-  // Personal Care (Improved images)
+  // Personal Care
   {
     id: 26,
     name: "Organic Castile Soap Bar",
@@ -353,7 +394,7 @@ const mockProducts: Product[] = [
     description: "Set of 4 bamboo toothbrushes, compostable"
   },
 
-  // Cleaning Products (Better images)
+  // Cleaning Products
   {
     id: 30,
     name: "Plant-Based Laundry Pods",
@@ -388,7 +429,7 @@ const mockProducts: Product[] = [
     description: "Washable and reusable bamboo paper towels"
   },
 
-  // Food & Pantry (Better images)
+  // Food & Pantry
   {
     id: 33,
     name: "Organic Quinoa",
@@ -423,7 +464,7 @@ const mockProducts: Product[] = [
     description: "Organic pasta made from sustainable wheat"
   },
 
-  // Arts & Crafts (Better images)
+  // Arts & Crafts
   {
     id: 36,
     name: "Natural Beeswax Crayons",
@@ -458,7 +499,7 @@ const mockProducts: Product[] = [
     description: "Made from 100% recycled paper materials"
   },
 
-  // Office Supplies (Better images)
+  // Office Supplies
   {
     id: 39,
     name: "Biodegradable Pens",

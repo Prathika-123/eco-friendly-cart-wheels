@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { Star, Leaf, Plus, Award, ImageOff } from 'lucide-react';
+import { Star, Leaf, Plus, Award, ImageOff, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface Product {
   id: number;
@@ -9,6 +8,7 @@ interface Product {
   sustainabilityScore: number;
   carbonFootprint: number;
   image: string;
+  images?: string[]; // Add support for multiple images
   category: string;
   certifications: string[];
   description: string;
@@ -22,6 +22,12 @@ interface ProductCardProps {
 export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Use product.images if available, otherwise fall back to single image
+  const productImages = product.images && product.images.length > 0 
+    ? product.images 
+    : [product.image];
 
   const getSustainabilityColor = (score: number) => {
     if (score >= 8.5) return 'text-green-600 bg-green-100';
@@ -44,6 +50,25 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
     setImageLoading(false);
   };
 
+  const nextImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => 
+      prev === productImages.length - 1 ? 0 : prev + 1
+    );
+  };
+
+  const prevImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => 
+      prev === 0 ? productImages.length - 1 : prev - 1
+    );
+  };
+
+  const goToImage = (index: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentImageIndex(index);
+  };
+
   return (
     <div className="bg-white/70 backdrop-blur-sm rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border border-green-100 group hover:scale-105">
       <div className="relative overflow-hidden">
@@ -60,17 +85,38 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
             </div>
           </div>
         ) : (
-          <img
-            src={product.image}
-            alt={product.name}
-            className={`w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300 ${
-              imageLoading ? 'hidden' : ''
-            }`}
-            onLoad={handleImageLoad}
-            onError={handleImageError}
-            loading="lazy"
-          />
+          <>
+            <img
+              src={productImages[currentImageIndex]}
+              alt={`${product.name} - Image ${currentImageIndex + 1}`}
+              className={`w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300 ${
+                imageLoading ? 'hidden' : ''
+              }`}
+              onLoad={handleImageLoad}
+              onError={handleImageError}
+              loading="lazy"
+            />
+            
+            {/* Navigation arrows - only show if multiple images */}
+            {productImages.length > 1 && (
+              <>
+                <button
+                  onClick={prevImage}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={nextImage}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              </>
+            )}
+          </>
         )}
+        
         <div className="absolute top-3 left-3">
           <div className={`px-2 py-1 rounded-full text-xs font-bold ${getSustainabilityColor(product.sustainabilityScore)}`}>
             {getSustainabilityLabel(product.sustainabilityScore)}
@@ -79,6 +125,23 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
         <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full p-2">
           <Leaf className="h-4 w-4 text-green-500" />
         </div>
+
+        {/* Image indicators - only show if multiple images */}
+        {productImages.length > 1 && (
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex space-x-1">
+            {productImages.map((_, index) => (
+              <button
+                key={index}
+                onClick={(e) => goToImage(index, e)}
+                className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                  index === currentImageIndex 
+                    ? 'bg-white' 
+                    : 'bg-white/50 hover:bg-white/75'
+                }`}
+              />
+            ))}
+          </div>
+        )}
       </div>
       
       <div className="p-4">
