@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { Star, Leaf, Plus, Award } from 'lucide-react';
+import React, { useState } from 'react';
+import { Star, Leaf, Plus, Award, ImageOff } from 'lucide-react';
 
 interface Product {
   id: number;
@@ -20,6 +20,9 @@ interface ProductCardProps {
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
+  const [imageError, setImageError] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
+
   const getSustainabilityColor = (score: number) => {
     if (score >= 8.5) return 'text-green-600 bg-green-100';
     if (score >= 7.0) return 'text-yellow-600 bg-yellow-100';
@@ -32,14 +35,42 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
     return 'Fair';
   };
 
+  const handleImageLoad = () => {
+    setImageLoading(false);
+  };
+
+  const handleImageError = () => {
+    setImageError(true);
+    setImageLoading(false);
+  };
+
   return (
     <div className="bg-white/70 backdrop-blur-sm rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border border-green-100 group hover:scale-105">
       <div className="relative overflow-hidden">
-        <img
-          src={product.image}
-          alt={product.name}
-          className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300"
-        />
+        {imageLoading && (
+          <div className="w-full h-48 bg-gray-200 animate-pulse flex items-center justify-center">
+            <div className="text-gray-400">Loading...</div>
+          </div>
+        )}
+        {imageError ? (
+          <div className="w-full h-48 bg-gray-100 flex items-center justify-center">
+            <div className="text-center text-gray-400">
+              <ImageOff className="h-12 w-12 mx-auto mb-2" />
+              <p className="text-sm">Image not available</p>
+            </div>
+          </div>
+        ) : (
+          <img
+            src={product.image}
+            alt={product.name}
+            className={`w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300 ${
+              imageLoading ? 'hidden' : ''
+            }`}
+            onLoad={handleImageLoad}
+            onError={handleImageError}
+            loading="lazy"
+          />
+        )}
         <div className="absolute top-3 left-3">
           <div className={`px-2 py-1 rounded-full text-xs font-bold ${getSustainabilityColor(product.sustainabilityScore)}`}>
             {getSustainabilityLabel(product.sustainabilityScore)}
