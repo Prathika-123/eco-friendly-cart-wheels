@@ -4,6 +4,11 @@ import { ProductCard } from '@/components/ProductCard';
 import { CartSidebar } from '@/components/CartSidebar';
 import { SustainabilityScore } from '@/components/SustainabilityScore';
 import { SearchBar } from '@/components/SearchBar';
+import { ProductQuickView } from '@/components/ProductQuickView';
+import { SustainabilityTips } from '@/components/SustainabilityTips';
+import { ProductRecommendations } from '@/components/ProductRecommendations';
+import { InteractiveStats } from '@/components/InteractiveStats';
+import { useToast } from "@/hooks/use-toast";
 
 interface Product {
   id: number;
@@ -529,6 +534,9 @@ const Index = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
+  const { toast } = useToast();
 
   const categories = ['All', 'Vegetables', 'Fruits', 'Clothing', 'Electronics', 'Home & Garden', 'Personal Care', 'Cleaning Products', 'Food & Pantry', 'Arts & Crafts', 'Office Supplies'];
 
@@ -558,17 +566,35 @@ const Index = () => {
     setCart(prevCart => {
       const existingItem = prevCart.find(item => item.id === product.id);
       if (existingItem) {
+        toast({
+          title: "Updated Cart! 🛒",
+          description: `${product.name} quantity increased`,
+        });
         return prevCart.map(item =>
           item.id === product.id
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
       }
+      
+      toast({
+        title: "Added to Cart! 🌱",
+        description: `${product.name} added successfully`,
+      });
+      
       return [...prevCart, { ...product, quantity: 1 }];
     });
   };
 
   const removeFromCart = (productId: number) => {
+    const product = cart.find(item => item.id === productId);
+    if (product) {
+      toast({
+        title: "Removed from Cart",
+        description: `${product.name} removed`,
+        variant: "destructive",
+      });
+    }
     setCart(prevCart => prevCart.filter(item => item.id !== productId));
   };
 
@@ -592,6 +618,19 @@ const Index = () => {
     ? cart.reduce((total, item) => total + item.sustainabilityScore * item.quantity, 0) / cart.reduce((total, item) => total + item.quantity, 0)
     : 0;
 
+  const handleProductClick = (product: Product) => {
+    setQuickViewProduct(product);
+    setIsQuickViewOpen(true);
+  };
+
+  const handleQuickViewAddToCart = (product: Product) => {
+    addToCart(product);
+    toast({
+      title: "Added from Quick View! ⚡",
+      description: `${product.name} added to cart`,
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
       {/* Header */}
@@ -614,12 +653,12 @@ const Index = () => {
               <SustainabilityScore score={averageSustainabilityScore} />
               <button
                 onClick={() => setIsCartOpen(true)}
-                className="relative bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-xl hover:from-green-600 hover:to-emerald-600 transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl"
+                className="relative bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-xl hover:from-green-600 hover:to-emerald-600 transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl hover:scale-105"
               >
                 <ShoppingCart className="h-5 w-5" />
                 <span className="font-medium">Cart</span>
                 {cart.length > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold">
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold animate-pulse">
                     {cart.reduce((total, item) => total + item.quantity, 0)}
                   </span>
                 )}
@@ -639,24 +678,13 @@ const Index = () => {
             Discover eco-friendly products with sustainability scores, carbon footprint tracking, and green alternatives for conscious shopping.
           </p>
           
-          {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-8">
-            <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-green-100">
-              <TreePine className="h-8 w-8 text-green-500 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-gray-900">{totalCarbonSaved.toFixed(1)} kg</div>
-              <div className="text-sm text-gray-600">CO₂ Saved</div>
-            </div>
-            <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-green-100">
-              <Recycle className="h-8 w-8 text-emerald-500 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-gray-900">{mockProducts.length}</div>
-              <div className="text-sm text-gray-600">Eco Products</div>
-            </div>
-            <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-green-100">
-              <Award className="h-8 w-8 text-teal-500 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-gray-900">8.9</div>
-              <div className="text-sm text-gray-600">Avg Sustainability</div>
-            </div>
-          </div>
+          {/* Interactive Stats */}
+          <InteractiveStats
+            totalCarbonSaved={totalCarbonSaved}
+            totalProducts={mockProducts.length}
+            averageSustainability={8.9}
+            cartItems={cart.reduce((total, item) => total + item.quantity, 0)}
+          />
         </div>
       </section>
 
@@ -679,7 +707,7 @@ const Index = () => {
               <button
                 key={category}
                 onClick={() => setSelectedCategory(category)}
-                className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
+                className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 hover:scale-105 ${
                   selectedCategory === category
                     ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg'
                     : 'bg-white/60 backdrop-blur-sm text-gray-700 hover:bg-white/80 border border-green-100'
@@ -697,7 +725,7 @@ const Index = () => {
         <section className="px-4 sm:px-6 lg:px-8 pb-4">
           <div className="max-w-7xl mx-auto">
             <div className="text-center text-gray-600">
-              <p>
+              <p className="animate-fade-in">
                 {filteredProducts.length} products found
                 {searchTerm && ` for "${searchTerm}"`}
                 {selectedCategory !== 'All' && ` in ${selectedCategory}`}
@@ -707,11 +735,24 @@ const Index = () => {
         </section>
       )}
 
+      {/* Product Recommendations */}
+      {cart.length > 0 && (
+        <section className="px-4 sm:px-6 lg:px-8 pb-4">
+          <div className="max-w-7xl mx-auto">
+            <ProductRecommendations
+              currentProduct={cart[cart.length - 1]}
+              allProducts={mockProducts}
+              onProductClick={handleProductClick}
+            />
+          </div>
+        </section>
+      )}
+
       {/* Products Grid */}
       <section className="px-4 sm:px-6 lg:px-8 pb-16">
         <div className="max-w-7xl mx-auto">
           {filteredProducts.length === 0 ? (
-            <div className="text-center py-12">
+            <div className="text-center py-12 animate-fade-in">
               <div className="text-gray-400 mb-4">
                 <Leaf className="h-24 w-24 mx-auto mb-4" />
               </div>
@@ -720,17 +761,33 @@ const Index = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredProducts.map((product) => (
-                <ProductCard
+              {filteredProducts.map((product, index) => (
+                <div
                   key={product.id}
-                  product={product}
-                  onAddToCart={addToCart}
-                />
+                  className="animate-fade-in hover:scale-105 transition-transform duration-300"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                  onClick={() => handleProductClick(product)}
+                >
+                  <ProductCard
+                    product={product}
+                    onAddToCart={addToCart}
+                  />
+                </div>
               ))}
             </div>
           )}
         </div>
       </section>
+
+      {/* Interactive Components */}
+      <SustainabilityTips />
+      
+      <ProductQuickView
+        product={quickViewProduct}
+        isOpen={isQuickViewOpen}
+        onClose={() => setIsQuickViewOpen(false)}
+        onAddToCart={handleQuickViewAddToCart}
+      />
 
       {/* Cart Sidebar */}
       <CartSidebar

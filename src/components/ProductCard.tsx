@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Star, Leaf, Plus, Award, ImageOff, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Star, Leaf, Plus, Award, ImageOff, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
 
 interface Product {
   id: number;
@@ -23,6 +23,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
 
   // Use product.images if available, otherwise fall back to single image
   const productImages = product.images && product.images.length > 0 
@@ -69,8 +70,26 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
     setCurrentImageIndex(index);
   };
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Don't trigger if clicking on action buttons
+    if ((e.target as HTMLElement).closest('button')) {
+      return;
+    }
+    // The parent component will handle the click
+  };
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onAddToCart(product);
+  };
+
   return (
-    <div className="bg-white/70 backdrop-blur-sm rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border border-green-100 group hover:scale-105">
+    <div 
+      className="bg-white/70 backdrop-blur-sm rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border border-green-100 group hover:scale-105 cursor-pointer"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onClick={handleCardClick}
+    >
       <div className="relative overflow-hidden">
         {imageLoading && (
           <div className="w-full h-48 bg-gray-200 animate-pulse flex items-center justify-center">
@@ -96,6 +115,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
               onError={handleImageError}
               loading="lazy"
             />
+            
+            {/* Quick View Overlay */}
+            {isHovered && (
+              <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="bg-white/90 backdrop-blur-sm rounded-full px-4 py-2 flex items-center space-x-2 text-gray-800 font-medium">
+                  <Eye className="h-4 w-4" />
+                  <span>Quick View</span>
+                </div>
+              </div>
+            )}
             
             {/* Navigation arrows - only show if multiple images */}
             {productImages.length > 1 && (
@@ -146,7 +175,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
       
       <div className="p-4">
         <div className="flex items-start justify-between mb-2">
-          <h3 className="font-semibold text-gray-900 text-sm leading-tight">{product.name}</h3>
+          <h3 className="font-semibold text-gray-900 text-sm leading-tight group-hover:text-green-600 transition-colors">
+            {product.name}
+          </h3>
           <span className="text-lg font-bold text-green-600">${product.price}</span>
         </div>
         
@@ -175,8 +206,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
         </div>
         
         <button
-          onClick={() => onAddToCart(product)}
-          className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white py-2 px-4 rounded-xl hover:from-green-600 hover:to-emerald-600 transition-all duration-200 flex items-center justify-center space-x-2 font-medium shadow-lg hover:shadow-xl"
+          onClick={handleAddToCart}
+          className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white py-2 px-4 rounded-xl hover:from-green-600 hover:to-emerald-600 transition-all duration-200 flex items-center justify-center space-x-2 font-medium shadow-lg hover:shadow-xl hover:scale-105"
         >
           <Plus className="h-4 w-4" />
           <span>Add to Cart</span>
